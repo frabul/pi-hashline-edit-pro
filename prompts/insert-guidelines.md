@@ -1,4 +1,4 @@
-- `insert`: anchor takes ONLY the bare 3-char hash of the line next to which the new lines go: read_with_anchors row `ve7│function hello() {` means `"anchor": "ve7"`. Never paste the line content or the whole `HASH│content` row.
+- `insert`: anchor takes ONLY the bare 3-char anchor of the line next to which the new lines go: read_with_anchors row `ve7│function hello() {` means `"anchor": "ve7"`. Never paste the line content or the whole `HASH│content` row.
 - `insert`: the anchor line is preserved. Include only the new lines in `lines`, never the anchor line itself.
 - `insert`: use `direction: "after"` to add lines after the anchor line, `"before"` to add them before it.
 - `insert`: read the file first, so the anchor line was shown to you. Use a post-edit diff row or grep output for follow-up inserts.

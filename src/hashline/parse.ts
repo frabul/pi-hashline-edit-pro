@@ -18,7 +18,7 @@ function diagRef(ref: string): string {
 	}
 
 	if (trimmed.includes("│")) {
-		return `[E_BAD_REF] Invalid anchor "${trimmed}": use only the 3-char hash, drop everything from "│" onward.`;
+		return `[E_BAD_REF] Invalid anchor "${trimmed}": use only the 3-char anchor, drop everything from "│" onward.`;
 	}
 
 	return `[E_BAD_REF] Invalid anchor "${trimmed}". Expected a 3-char alphanumeric anchor (e.g. "aB3").`;
