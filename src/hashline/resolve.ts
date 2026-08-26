@@ -168,7 +168,7 @@ function assertItem(edit: Record<string, unknown>): void {
   }
   if (typeof edit.remove_from !== "string" || typeof edit.remove_to !== "string") {
     throw new Error(
-      `[E_BAD_SHAPE] The edit requires "remove_from" and "remove_to" anchor strings (3-char hashes from read output).`,
+      `[E_BAD_SHAPE] The edit requires "remove_from" and "remove_to" anchor strings (3-char hashes from read_with_anchors output).`,
     );
   }
 }
@@ -236,7 +236,7 @@ export function stripBarePrefixes(
 	const matchedCount = stripped.filter((s) => s.matched).length;
 	const guidance =
 		matchedCount === 0
-			? " Verify it was pasted from read output."
+			? " Verify it was pasted from read_with_anchors output."
 			: "";
 	warnings.push(
 		`[E_BARE_HASH_PREFIX] Stripped "HASH│" prefix from ${locations}.${guidance}`

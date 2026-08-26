@@ -160,7 +160,7 @@ export async function fmtReadPreview(
 
 export function regRead(pi: ExtensionAPI): void {
 	pi.registerTool({
-		name: "read",
+		name: "read_with_anchors",
 		label: "Read",
 		description: R_DESC,
 		promptSnippet: R_SNIPPET,
@@ -216,8 +216,8 @@ export function regRead(pi: ExtensionAPI): void {
 				fileHashes,
 				resolvedPath,
 			);
-			await recordServedSafe(resolvedPath, preview.servedHashes, "read", new Set(fileHashes));
-			const snapshotId = await safeSnapId(absolutePath, "read");
+			await recordServedSafe(resolvedPath, preview.servedHashes, "read_with_anchors", new Set(fileHashes));
+			const snapshotId = await safeSnapId(absolutePath, "read_with_anchors");
 			const previewText =
 				hadUtf8DecodeErrors
 					? `${preview.text}\n\n[Non-UTF-8 bytes shown as U+FFFD; editing rewrites the file as UTF-8.]`

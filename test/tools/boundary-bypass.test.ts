@@ -199,7 +199,7 @@ describe("boundary dedup noop bypass", () => {
       const { pi, getTool, handlers } = makeFakePiRegistry();
       register(pi);
       const ctx = { cwd, ui: { notify() {} } } as any;
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
       const editTool = getTool("replace");
       const hashes = await readSample(ctx, readTool);
 

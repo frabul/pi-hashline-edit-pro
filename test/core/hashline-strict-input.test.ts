@@ -93,7 +93,7 @@ describe("partial hash prefixes copied into content (issue #24)", () => {
     hashes);
     expect(result.content).toBe("one\ntwo\nbeta\ngamma\ndelta");
     expect(result.warnings?.[0]).toMatch(/Stripped "HASH│" prefix/);
-    expect(result.warnings?.[0]).toMatch(/Verify it was pasted from read output/);
+    expect(result.warnings?.[0]).toMatch(/Verify it was pasted from read_with_anchors output/);
 	});
 
 	it("reports the replacement_lines line for each stripped line", async () => {
@@ -285,10 +285,10 @@ describe("truncated hash prefixes copied into content (issue #27)", () => {
 		expect(result.content).toBe("                        }\nbeta\ngamma\ndelta");
 		expect(result.content).not.toContain("│");
 		expect(result.warnings?.[0]).toMatch(/Stripped "HASH│" prefix/);
-		expect(result.warnings?.[0]).toMatch(/Verify it was pasted from read output/);
+		expect(result.warnings?.[0]).toMatch(/Verify it was pasted from read_with_anchors output/);
 	});
 
-	it("strips a 1-char prefix pasted from read output", async () => {
+	it("strips a 1-char prefix pasted from read_with_anchors output", async () => {
 		const hashes = await lineHashes(file, home.testPath);
 		const anchor = hashes[0]!;
 		const result = applyTool(
@@ -310,7 +310,7 @@ describe("truncated hash prefixes copied into content (issue #27)", () => {
 		expect(result.warnings?.[0]).toMatch(/Stripped diff-preview marker/);
 	});
 
-	it("strips a 4-char prefix pasted from read output", async () => {
+	it("strips a 4-char prefix pasted from read_with_anchors output", async () => {
 		const hashes = await lineHashes(file, home.testPath);
 		const anchor = hashes[0]!;
 		const result = applyTool(
@@ -319,7 +319,7 @@ describe("truncated hash prefixes copied into content (issue #27)", () => {
 			hashes);
 		expect(result.content).toBe("literal\nbeta\ngamma\ndelta");
 		expect(result.warnings?.[0]).toMatch(/Stripped "HASH│" prefix/);
-		expect(result.warnings?.[0]).toMatch(/Verify it was pasted from read output/);
+		expect(result.warnings?.[0]).toMatch(/Verify it was pasted from read_with_anchors output/);
 	});
 
 	it("leaves a 7-char run before the separator as literal content", async () => {
