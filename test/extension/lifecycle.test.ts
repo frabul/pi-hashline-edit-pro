@@ -6,9 +6,10 @@ function makeLifecyclePi() {
   const handlers = new Map<string, (...args: unknown[]) => unknown>();
   const commands = new Map<string, { handler: (...args: unknown[]) => unknown }>();
   const notify = vi.fn();
+  const tools = new Map<string, any>();
   let activeTools: string[] = [];
   const pi = {
-    registerTool() {},
+    registerTool(tool: any) { tools.set(tool.name, tool); },
     registerCommand(name: string, def: { handler: (...args: unknown[]) => unknown }) {
       commands.set(name, def);
     },
@@ -20,7 +21,7 @@ function makeLifecyclePi() {
       activeTools = tools;
     },
   } as any;
-  return { pi, handlers, commands, notify, getActiveTools: () => activeTools };
+  return { pi, handlers, commands, notify, tools, getActiveTools: () => activeTools };
 }
 
 async function registerExtension(pi: any) {
@@ -29,15 +30,18 @@ async function registerExtension(pi: any) {
 }
 
 describe("session_start lifecycle", () => {
-  it("removes the built-in edit tool while keeping the extension's grep active", async () => {
+  it("registers a disabled edit stub (registry override) and removes edit from the active set", async () => {
     await withTempDir("lifecycle-tools-", async (dir) => {
-      const { pi, handlers } = makeLifecyclePi();
+      const { pi, handlers, tools } = makeLifecyclePi();
       pi.setActiveTools(["read_with_anchors", "replace", "edit", "grep", "bash"]);
       await registerExtension(pi);
       const sessionStart = handlers.get("session_start");
       expect(sessionStart).toBeDefined();
       await sessionStart!({}, { cwd: dir, ui: { notify: vi.fn() } });
       expect(pi.getActiveTools()).toEqual(["read_with_anchors", "replace", "grep", "bash"]);
+      const editStub = tools.get("edit");
+      expect(editStub).toBeDefined();
+      expect(editStub.description).toContain("DISABLED");
     });
   });
 
