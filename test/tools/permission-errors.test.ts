@@ -36,7 +36,7 @@ describe.skipIf(isRoot || isWindows)("permission errors", () => {
       try {
         const { pi, getTool } = makeFakePiRegistry();
         register(pi);
-        const readTool = getTool("read");
+        const readTool = getTool("read_with_anchors");
 
         await expect(
           readTool.execute(

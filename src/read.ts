@@ -120,7 +120,7 @@ export async function fmtReadPreview(
 		const verb = oversized.length === 1 ? 'exceeds' : 'exceed';
 		const addresses = listed.map((row) => `${row.lineNumber}p`).join(';');
 		const moreHint = hiddenCount > 0
-			? ` ${hiddenCount} more oversized line(s). Use read with offset to inspect them.`
+			? ` ${hiddenCount} more oversized line(s). Use read_with_anchors with offset to inspect them.`
 			: '';
 		const warning = `[${lineLabel} ${verb} ${formatSize(maxBytes)}; content not shown. Inspect with bash: sed -n '${addresses}' <path> | head -c ${maxBytes}${moreHint}]`;
 		let preview = skippedTruncation.content;
@@ -168,7 +168,7 @@ export async function fmtReadPreview(
 
 export function regRead(pi: ExtensionAPI): void {
 	pi.registerTool({
-		name: "read",
+		name: "read_with_anchors",
 		label: "Read",
 		description: R_DESC,
 		promptSnippet: R_SNIPPET,
@@ -238,8 +238,8 @@ export function regRead(pi: ExtensionAPI): void {
 			);
 			const fileLines = splitLines(normalized);
 			const servedMap = buildServedMap(fileHashes, fileLines, preview.servedHashes);
-			await recordServedSafe(resolvedPath, servedMap, "read", new Set(fileHashes));
-			const snapshotId = await safeSnapId(absolutePath, "read");
+			await recordServedSafe(resolvedPath, servedMap, "read_with_anchors", new Set(fileHashes));
+			const snapshotId = await safeSnapId(absolutePath, "read_with_anchors");
 			const previewText =
 				hadUtf8DecodeErrors
 					? `${preview.text}\n\n[Non-UTF-8 bytes shown as U+FFFD; editing rewrites the file as UTF-8.]`

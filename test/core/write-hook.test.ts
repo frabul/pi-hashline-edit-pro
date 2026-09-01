@@ -153,7 +153,7 @@ describe("write-hook registerWriteHook", () => {
     const { pi, handlers } = makePi();
     registerWriteHook(pi);
     const handler = handlers.get("tool_call") as (event: unknown, ctx: unknown) => Promise<unknown>;
-    const result = await handler({ toolName: "read", input: { path: "a.txt", content: "hello" } }, { cwd: "/tmp", signal: undefined });
+    const result = await handler({ toolName: "read_with_anchors", input: { path: "a.txt", content: "hello" } }, { cwd: "/tmp", signal: undefined });
     expect(result).toBeUndefined();
   });
   it("ignores write with non-string path or content", async () => {

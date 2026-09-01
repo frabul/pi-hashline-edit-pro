@@ -102,7 +102,7 @@ describe("auto-read handler", () => {
 
     const result = await handler!(
       {
-        toolName: "read",
+        toolName: "read_with_anchors",
         isError: false,
         input: { path: "test.txt" },
         content: [],

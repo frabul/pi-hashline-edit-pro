@@ -144,7 +144,7 @@ describe("anchor_grep opt-out", () => {
       vi.stubEnv("HOME", home);
       vi.stubEnv("XDG_CONFIG_HOME", "");
       try {
-        const { pi, handlers, getActive } = makeTrackingPi(["read", "replace", "insert", "grep", "anchor_grep", "undo_last_change", "edit"]);
+        const { pi, handlers, getActive } = makeTrackingPi(["read_with_anchors", "replace", "insert", "grep", "anchor_grep", "undo_last_change", "edit"]);
         const { default: register } = await import("../../index");
         register(pi);
         const sessionStart = handlers.get("session_start") as (a: unknown, b: unknown) => Promise<void>;
@@ -152,7 +152,7 @@ describe("anchor_grep opt-out", () => {
         expect(getActive()).not.toContain("grep");
         expect(getActive()).toContain("anchor_grep");
         expect(getActive()).not.toContain("edit");
-        expect(getActive()).toContain("read");
+        expect(getActive()).toContain("read_with_anchors");
       } finally {
         vi.unstubAllEnvs();
         const { shutdownHashStore } = await import("../../src/hash-store");
@@ -173,7 +173,7 @@ describe("anchor_grep opt-out", () => {
           join(home, ".config", "pi-hashline-edit-pro", "config.json"),
           JSON.stringify({ autoRead: true, anchorGrepEnabled: false }),
         );
-        const { pi, handlers, getActive } = makeTrackingPi(["read", "replace", "insert", "grep", "anchor_grep", "undo_last_change", "edit"]);
+        const { pi, handlers, getActive } = makeTrackingPi(["read_with_anchors", "replace", "insert", "grep", "anchor_grep", "undo_last_change", "edit"]);
         const { default: register } = await import("../../index");
         register(pi);
         const sessionStart = handlers.get("session_start") as (a: unknown, b: unknown) => Promise<void>;
@@ -196,7 +196,7 @@ describe("anchor_grep opt-out", () => {
       vi.stubEnv("HOME", home);
       vi.stubEnv("XDG_CONFIG_HOME", "");
       try {
-        const { pi, commands, handlers, getActive } = makeCommandPi(["read", "replace", "insert", "grep", "anchor_grep", "undo_last_change"]);
+        const { pi, commands, handlers, getActive } = makeCommandPi(["read_with_anchors", "replace", "insert", "grep", "anchor_grep", "undo_last_change"]);
         const { default: register } = await import("../../index");
         register(pi);
         const sessionStart = handlers.get("session_start") as (a: unknown, b: unknown) => Promise<void>;
@@ -229,7 +229,7 @@ describe("anchor_grep opt-out", () => {
       vi.stubEnv("HOME", home);
       vi.stubEnv("XDG_CONFIG_HOME", "");
       try {
-        const { pi, commands, handlers, getActive } = makeCommandPi(["read", "replace", "insert", "anchor_grep", "undo_last_change"]);
+        const { pi, commands, handlers, getActive } = makeCommandPi(["read_with_anchors", "replace", "insert", "anchor_grep", "undo_last_change"]);
         const { default: register } = await import("../../index");
         register(pi);
         const sessionStart = handlers.get("session_start") as (a: unknown, b: unknown) => Promise<void>;

@@ -95,7 +95,7 @@ describe("read tool guidelines", () => {
   it("always includes the re-read note for fresh anchors after edits", () => {
     const { pi, getTool } = makeFakePiRegistry();
     regRead(pi);
-    const tool = getTool("read");
+    const tool = getTool("read_with_anchors");
     const guidelines = tool.promptGuidelines as string[];
     expect(guidelines.some((g) => g.includes("call again after an edit"))).toBe(true);
     expect(guidelines.some((g) => g.includes("call before `replace`"))).toBe(true);

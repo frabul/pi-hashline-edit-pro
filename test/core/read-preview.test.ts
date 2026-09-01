@@ -162,7 +162,7 @@ describe("fmtReadPreview - oversized warning cap", () => {
     expect(result.text).toContain("sed -n '1p;2p;3p");
     expect(result.text).toContain(";100p' <path>");
     expect(result.text).not.toContain(";101p' <path>");
-    expect(result.text).toContain("Use read with offset");
+    expect(result.text).toContain("Use read_with_anchors with offset");
     expect(Buffer.byteLength(result.text, "utf-8")).toBeLessThan(50 * 1024);
   });
 });

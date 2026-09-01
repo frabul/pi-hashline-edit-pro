@@ -101,7 +101,7 @@ export function fmtMismatchWithHashes(
   const refList = notFound.map((m) => `"${m.ref.hash}"`).join(", ");
   if (notFound.length > 0) {
     out.push(
-      `[E_STALE_ANCHOR] ${notFound.length} stale anchor${notFound.length > 1 ? "s" : ""}${filePath ? ` in ${filePath}` : ""}: ${refList}. The file changed since read. Call read() for fresh anchors.`
+      `[E_STALE_ANCHOR] ${notFound.length} stale anchor${notFound.length > 1 ? "s" : ""}${filePath ? ` in ${filePath}` : ""}: ${refList}. The file changed since read. Call read_with_anchors() for fresh anchors.`
     );
     for (const m of notFound) {
       const ctx = m.context;
@@ -123,7 +123,7 @@ export function fmtMismatchWithHashes(
   if (ambiguous.length > 0) {
     if (out.length > 0) out.push("");
     out.push(
-      `[E_AMBIGUOUS_ANCHOR] ${ambiguous.length} ambiguous anchor${ambiguous.length > 1 ? "s" : ""}${filePath ? ` in ${filePath}` : ""}. Call read() for fresh anchors.`
+      `[E_AMBIGUOUS_ANCHOR] ${ambiguous.length} ambiguous anchor${ambiguous.length > 1 ? "s" : ""}${filePath ? ` in ${filePath}` : ""}. Call read_with_anchors() for fresh anchors.`
     );
     for (const m of ambiguous) {
       const sample = (m.candidates ?? []).slice(0, 5);
@@ -175,7 +175,7 @@ function assertItem(edit: Record<string, unknown>): void {
   }
   if (typeof edit.remove_from !== "string" || typeof edit.remove_to !== "string") {
     throw new Error(
-      `[E_BAD_SHAPE] The edit requires "remove_from" and "remove_to" anchor strings (3-char anchors from read output).`,
+      `[E_BAD_SHAPE] The edit requires "remove_from" and "remove_to" anchor strings (3-char anchors from read_with_anchors output).`,
     );
   }
 }
@@ -243,7 +243,7 @@ export function stripBarePrefixes(
 	const matchedCount = stripped.filter((s) => s.matched).length;
 	const guidance =
 		matchedCount === 0
-			? " Verify it was pasted from read output."
+			? " Verify it was pasted from read_with_anchors output."
 			: "";
 	warnings.push(
 		`[E_BARE_HASH_PREFIX] Stripped "anchor│" prefix from ${locations}.${guidance}`
@@ -573,7 +573,7 @@ export function assertRangeServed(
       : `${mismatchLines.length} of ${rangeLength} line(s) in the replaced range (lines ${startLine}-${endLine})${location} do not match`;
   const capHint =
     rangeLength > shownLength
-      ? `\n\n[The range has ${rangeLength} lines; showing the first ${shownLength}. Call read() with offset=${startLine + shownLength} to see the rest.]`
+      ? `\n\n[The range has ${rangeLength} lines; showing the first ${shownLength}. Call read_with_anchors() with offset=${startLine + shownLength} to see the rest.]`
       : "";
   const message =
     `[E_RANGE_STALE] ${mismatchText} what was shown. Nothing was modified. Current range with fresh anchors:\n\n${rows.join("\n")}${capHint}`;

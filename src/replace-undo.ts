@@ -146,7 +146,7 @@ export function regUndo(pi: ExtensionAPI): void {
             content: [
               {
                 type: "text",
-                text: `[E_UNDO_STALE] Cannot undo last change on ${path}: the file changed after the edit. The undo record is kept; once the file matches the edited state again, undo_last_change will succeed. Call read() to inspect the current state.`
+                text: `[E_UNDO_STALE] Cannot undo last change on ${path}: the file changed after the edit. The undo record is kept; once the file matches the edited state again, undo_last_change will succeed. Call read_with_anchors() to inspect the current state.`
               },
             ],
             isError: true,
@@ -194,7 +194,7 @@ export function regUndo(pi: ExtensionAPI): void {
           );
         }
         parts.push(
-          "Call read for fresh anchors.",
+          "Call read_with_anchors for fresh anchors.",
         );
 
         const patchResult = genPatch(path, currentNormalized, undo.content);
