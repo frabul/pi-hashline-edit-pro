@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { readConfig } from "../../src/config";
 import { withTempDir, makePiStub } from "../support/fixtures";
 
-
 async function registerExtension(pi: any) {
   const { default: register } = await import("../../index");
   register(pi);
@@ -11,11 +10,14 @@ async function registerExtension(pi: any) {
 describe("session_start lifecycle", () => {
   it("removes the built-in edit and grep tools while keeping anchor_grep", async () => {
     await withTempDir("lifecycle-tools-", async (dir) => {
-      const { pi, handlers } = makePiStub();
+      const { pi, handlers, tools } = makePiStub();
       pi.setActiveTools(["read_with_anchors", "replace", "edit", "grep", "anchor_grep", "bash"]);
       await registerExtension(pi);
       const sessionStart = handlers.get("session_start");
       expect(sessionStart).toBeDefined();
+      const editStub = tools.get("edit");
+      expect(editStub).toBeDefined();
+      expect(editStub.description).toContain("DISABLED");
       await sessionStart!({}, { cwd: dir, ui: { notify: vi.fn() } });
       expect(pi.getActiveTools()).toEqual(["read_with_anchors", "replace", "anchor_grep", "bash"]);
     });

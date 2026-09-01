@@ -456,6 +456,7 @@ Full reference:
 | `[E_UNDO_UNAVAILABLE]` | Undo history could not be persisted to the hash store; the edit was refused and the file was left unchanged. |
 | `[E_RANGE_STALE]` | A line in the replaced range no longer matches what was last shown (the file changed on disk, or the line was never shown; a pure deletion checks only its first and last line). The edit was refused; the current range is returned with fresh anchors. |
 | `[E_FILE_TOO_LARGE]` | The file exceeds the 1,353,139-line hashline limit or the 100MB size limit. |
+| `[E_EDIT_DISABLED]` | The `edit` tool is disabled under hashline-edit-pro; the call was rejected without modifying any file. Use the hash-anchored tools instead: `replace`, `replace_within`, `insert`, `copy`, `move`, `undo_last_change`, or `read_with_anchors`. |
 | `[E_REGISTRY]` | The anchor registry was not initialized; a serve or edit ran outside an initialized session. |
 | `[E_STORE_UNAVAILABLE]` | No SQLite runtime could be loaded: the host exposes neither `node:sqlite` (Node 22.19+) nor `bun:sqlite`. The pi release binary's bundled Bun lacks `node:sqlite`; run pi under Node or a Bun build that ships SQLite. |
 | `[E_WRITE_HASH_ECHO]` | A `write` `content` line reproduces a served row for this file (a bare `anchor│` read row, a `+anchor│`, ` anchor│`, or `-anchor│` diff row, or a `lineNumber │ anchor│content` grep row). The write is refused, file byte-identical; retry with bare content (remove the copied anchors). |

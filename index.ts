@@ -10,6 +10,7 @@ import { regUndo, clearUndo } from "./src/replace-undo";
 import { regRead, fmtReadPreview } from "./src/read";
 import { buildAutoReadAllInjection, autoReadAllBudget } from "./src/auto-read-all";
 import { clearAutoReadAllComplete } from "./src/auto-read-all-state";
+import { regEditStub } from "./src/edit-stub";
 import type { RMetrics } from "./src/replace-response";
 import type { ReplaceDetails } from "./src/replace";
 import { extractHints, extractWarnings } from "./src/replace-render";
@@ -43,6 +44,7 @@ import { AUTO_READ_ALL_CUSTOM_TYPE } from "./src/constants";
 
 export default function (pi: ExtensionAPI): void {
   regRead(pi);
+  regEditStub(pi);
 
   regReplace(pi);
   regReplaceWithin(pi);
