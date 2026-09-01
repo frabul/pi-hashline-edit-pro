@@ -123,7 +123,7 @@ export function assertInsertReq(request: unknown): asserts request is InsertReq 
     throw new Error('[E_BAD_SHAPE] Insert request field "path" must be a string when provided.');
   }
   if (typeof request.anchor !== "string" || request.anchor.length === 0) {
-    throw new Error('[E_BAD_SHAPE] Insert request requires an "anchor" string (4-char anchor from read output).');
+    throw new Error('[E_BAD_SHAPE] Insert request requires an "anchor" string (4-char anchor from read_with_anchors output).');
   }
   if (request.direction !== "before" && request.direction !== "after") {
     throw new Error('[E_BAD_SHAPE] Insert request "direction" must be "before" or "after".');
@@ -152,13 +152,13 @@ export function assertTransferReq(request: unknown): asserts request is Transfer
     throw new Error('[E_BAD_SHAPE] Copy/move request field "path" must be a string when provided.');
   }
   if (typeof request.source_from !== "string" || request.source_from.length === 0) {
-    throw new Error('[E_BAD_SHAPE] Copy/move request requires a "source_from" string (4-char anchor from read output).');
+    throw new Error('[E_BAD_SHAPE] Copy/move request requires a "source_from" string (4-char anchor from read_with_anchors output).');
   }
   if (typeof request.source_to !== "string" || request.source_to.length === 0) {
-    throw new Error('[E_BAD_SHAPE] Copy/move request requires a "source_to" string (4-char anchor from read output).');
+    throw new Error('[E_BAD_SHAPE] Copy/move request requires a "source_to" string (4-char anchor from read_with_anchors output).');
   }
   if (typeof request.insert_after !== "string" || request.insert_after.length === 0) {
-    throw new Error('[E_BAD_SHAPE] Copy/move request requires an "insert_after" string (4-char anchor from read output).');
+    throw new Error('[E_BAD_SHAPE] Copy/move request requires an "insert_after" string (4-char anchor from read_with_anchors output).');
   }
 }
 

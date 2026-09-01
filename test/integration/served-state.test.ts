@@ -346,7 +346,7 @@ describe("served-state range verification", () => {
     });
   });
 
-  it("records served state from read output", async () => {
+  it("records served state from read_with_anchors output", async () => {
     await withTempFile("sample.ts", "a\nb\nc\n", async ({ cwd }) => {
       const { ctx, readTool } = setupIntegrationTest(cwd);
       const readResult = await readTool.execute("r1", { path: "sample.ts" }, undefined, undefined, ctx);
@@ -425,7 +425,7 @@ describe("served-state range verification", () => {
       register(pi);
       await handlers.get("session_start")!({}, { cwd, ui: { notify() {} } });
       const ctx = { cwd, ui: { notify() {} } };
-      const readResult = await tools.get("read")!.execute("r1", { path: "sample.ts" }, undefined, undefined, ctx);
+      const readResult = await tools.get("read_with_anchors")!.execute("r1", { path: "sample.ts" }, undefined, undefined, ctx);
       const lines = getText(readResult).split("\n");
       const aHash = extractHash(lines.find((l: string) => l.includes("│a"))!);
 

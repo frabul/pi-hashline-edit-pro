@@ -79,7 +79,7 @@ describe("auto-read handler", () => {
 
     const result = await handler!(
       {
-        toolName: "read",
+        toolName: "read_with_anchors",
         isError: false,
         input: { path: "test.txt" },
         content: [],
@@ -442,7 +442,7 @@ describe("replace diff in model-visible text", () => {
             diff,
             metrics: { classification: "applied", changed_lines: { first: 2, last: 2 } },
           },
-          content: [{ type: "text", text: "Undone last change on undo.txt.\nCall read for fresh anchors." }],
+          content: [{ type: "text", text: "Undone last change on undo.txt.\nCall read_with_anchors for fresh anchors." }],
         },
         { cwd: dir },
       );

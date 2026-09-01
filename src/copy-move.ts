@@ -420,7 +420,7 @@ async function commitMovePair(input: {
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`${detail} Both files were written; one undo per file reverts the move. Call read for fresh anchors.`);
+    throw new Error(`${detail} Both files were written; one undo per file reverts the move. Call read_with_anchors for fresh anchors.`);
   }
 
   const reclaimNotice = formatAnchorReclaimNotice(takeReclaimedPaths());
@@ -483,7 +483,7 @@ async function commitMovePair(input: {
     .join("\n");
   const patchTruncation = truncateHead(rawPatch, { maxBytes: DEFAULT_MAX_BYTES, maxLines: DEFAULT_MAX_LINES });
   const patch = patchTruncation.truncated
-    ? `${patchTruncation.content}\n... [cross-file move patch truncated at ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}; the patch cannot be applied as-is. Use read to see the full files.]`
+    ? `${patchTruncation.content}\n... [cross-file move patch truncated at ${DEFAULT_MAX_LINES} lines or ${formatSize(DEFAULT_MAX_BYTES)}; the patch cannot be applied as-is. Use read_with_anchors to see the full files.]`
     : rawPatch;
   const patchTruncated = patchTruncation.truncated || sourceChanged.details.patchTruncated === true || destinationChanged.details.patchTruncated === true;
   return {

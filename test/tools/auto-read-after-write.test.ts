@@ -92,7 +92,7 @@ describe("auto-read after write", () => {
     expect(handler).toBeDefined();
   });
 
-  it("appends hashline read output after successful write when enabled", async () => {
+  it("appends hashline read_with_anchors output after successful write when enabled", async () => {
     const cwd = await makeTempDir("auto-read-test-");
     await writeFile(join(cwd, "test.txt"), "hello\nworld\n", "utf-8");
     try {
@@ -163,7 +163,7 @@ describe("auto-read after write", () => {
 
       const readResult = await handler!(
         {
-          toolName: "read",
+          toolName: "read_with_anchors",
           toolCallId: "read-1",
           input: { path: "test.txt" },
           content: [{ type: "text", text: "abc1│hello" }],

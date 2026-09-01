@@ -433,7 +433,7 @@ export async function ensureBatchBase(input: {
   signal?: AbortSignal;
 }): Promise<BatchBase> {
   const runtime = batches.get(input.member.batchKey);
-  if (!runtime) throw new Error(`[E_STALE_ANCHOR] Batch ${input.member.display} is no longer tracked. Call read for fresh anchors.`);
+  if (!runtime) throw new Error(`[E_STALE_ANCHOR] Batch ${input.member.display} is no longer tracked. Call read_with_anchors for fresh anchors.`);
   if (runtime.base) return runtime.base;
   abortIf(input.signal);
   const file = await readNormFile(input.targetPath, input.cwd, {
@@ -466,7 +466,7 @@ export async function ensureBatchBase(input: {
 
 export async function executeBatchMember(input: BatchMemberInput): Promise<TResult> {
   const runtime = batches.get(input.member.batchKey);
-  if (!runtime) throw new Error(`[E_STALE_ANCHOR] Batch ${input.member.display} is no longer tracked. Call read for fresh anchors.`);
+  if (!runtime) throw new Error(`[E_STALE_ANCHOR] Batch ${input.member.display} is no longer tracked. Call read_with_anchors for fresh anchors.`);
   if (runtime.failed) throw batchAbortedError(runtime);
   let base: BatchBase;
   try {
@@ -483,7 +483,7 @@ export async function executeBatchMember(input: BatchMemberInput): Promise<TResu
     throw error;
   }
   if (input.mutationTargetPath !== input.member.target) {
-    const error = new Error(`[E_STALE_ANCHOR] "${input.hedit.hash_bounds[0].hash}" is no longer owned by ${input.member.target}. Call read for fresh anchors.`);
+    const error = new Error(`[E_STALE_ANCHOR] "${input.hedit.hash_bounds[0].hash}" is no longer owned by ${input.member.target}. Call read_with_anchors for fresh anchors.`);
     noteBatchFailure(input.member, error);
     discardBatchState(runtime);
     throw error;
@@ -631,7 +631,7 @@ function pieceMappingSpans(pieces: BatchPiece[]): { start: number; end: number; 
 
 async function finishBatch(member: PlannedMember, signal?: AbortSignal): Promise<TResult> {
   const runtime = batches.get(member.batchKey);
-  if (!runtime || !runtime.base || !runtime.paths) throw new Error(`[E_STALE_ANCHOR] Batch ${member.display} is no longer tracked. Call read for fresh anchors.`);
+  if (!runtime || !runtime.base || !runtime.paths) throw new Error(`[E_STALE_ANCHOR] Batch ${member.display} is no longer tracked. Call read_with_anchors for fresh anchors.`);
   const base = runtime.base;
   const paths = runtime.paths;
   if (runtime.failed) throw batchAbortedError(runtime);
@@ -705,7 +705,7 @@ async function finishBatch(member: PlannedMember, signal?: AbortSignal): Promise
   }
   if (toLF(stripBOM(currentRaw).text) !== base.content) {
     discardBatchState(runtime);
-    throw new Error(`[E_OP_ABORTED] Batch ${runtime.display} aborted: the file changed after the batch started. Call read for fresh anchors and retry.`);
+    throw new Error(`[E_OP_ABORTED] Batch ${runtime.display} aborted: the file changed after the batch started. Call read_with_anchors for fresh anchors and retry.`);
   }
   try {
     await lineHashes(composed, runtime.target, {
@@ -750,7 +750,7 @@ async function finishBatch(member: PlannedMember, signal?: AbortSignal): Promise
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`${detail} File was written; anchor finalization failed. One undo reverts. Call read for fresh anchors.`);
+    throw new Error(`${detail} File was written; anchor finalization failed. One undo reverts. Call read_with_anchors for fresh anchors.`);
   }
   const writeReclaim = formatAnchorReclaimNotice(takeReclaimedPaths());
   if (writeReclaim !== undefined) warnings.push(writeReclaim);

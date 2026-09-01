@@ -90,7 +90,7 @@ export async function commitEdit(pipe: PipelineResult, meta: CommitMeta): Promis
     throw new Error(`[E_OP_ABORTED] Edit aborted: the file was deleted after the edit started.`);
   }
   if (toLF(stripBOM(currentRaw).text) !== pipe.originalNormalized) {
-    throw new Error(`[E_OP_ABORTED] Edit aborted: the file changed after the edit started. Call read for fresh anchors and retry.`);
+    throw new Error(`[E_OP_ABORTED] Edit aborted: the file changed after the edit started. Call read_with_anchors for fresh anchors and retry.`);
   }
   const undo = await saveUndo(mutationTargetPath, {
     content: pipe.originalNormalized,
@@ -137,7 +137,7 @@ export async function commitEdit(pipe: PipelineResult, meta: CommitMeta): Promis
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`${detail} File was written; anchor finalization failed. One undo reverts. Call read for fresh anchors.`);
+    throw new Error(`${detail} File was written; anchor finalization failed. One undo reverts. Call read_with_anchors for fresh anchors.`);
   }
   const writeReclaim = formatAnchorReclaimNotice(takeReclaimedPaths());
   if (writeReclaim !== undefined) warnings.push(writeReclaim);

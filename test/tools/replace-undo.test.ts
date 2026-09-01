@@ -19,7 +19,7 @@ import register from "../../index";
 useTestHome();
 
 async function servedAnchors(getTool: (name: string) => any, ctx: any, name: string): Promise<string[]> {
-  const read = await getTool("read").execute(`srv-${name}`, { path: name }, undefined, undefined, ctx);
+  const read = await getTool("read_with_anchors").execute(`srv-${name}`, { path: name }, undefined, undefined, ctx);
   return getText(read)
     .split("\n")
     .filter((line) => /^[A-Za-z]{4}│/.test(line))
@@ -156,7 +156,7 @@ describe("undo_last_change", () => {
         undefined,
         ctx,
       );
-      const readPost = await getTool("read").execute("srv-post", { path: "sample.ts" }, undefined, undefined, ctx);
+      const readPost = await getTool("read_with_anchors").execute("srv-post", { path: "sample.ts" }, undefined, undefined, ctx);
       const postHashes = getText(readPost)
         .split("\n")
         .filter((line) => /^[A-Za-z]{4}│/.test(line))

@@ -13,7 +13,7 @@ describe("cross-session anchor isolation", () => {
       const { pi, getTool } = makeFakePiRegistry();
       register(pi);
       const ctx = { cwd: dir, ui: { notify() {} } } as any;
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
       const editTool = getTool("replace");
 
       await initRegistry(join(dir, "session-one.json"));
@@ -47,7 +47,7 @@ describe("cross-session anchor isolation", () => {
       const { pi, getTool } = makeFakePiRegistry();
       register(pi);
       const ctx = { cwd: dir, ui: { notify() {} } } as any;
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
 
       await initRegistry(join(dir, "session-one.json"));
       const readOne = await readTool.execute("r1", { path: "shapeA.txt" }, undefined, undefined, ctx);
@@ -68,7 +68,7 @@ describe("cross-session anchor isolation", () => {
       const { pi, getTool } = makeFakePiRegistry();
       register(pi);
       const ctx = { cwd: dir, ui: { notify() {} } } as any;
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
 
       await initRegistry(join(dir, "session-one.json"));
       const readOne = await readTool.execute("r1", { path: "same.txt" }, undefined, undefined, ctx);

@@ -121,7 +121,7 @@ export async function fmtReadPreview(
 		const verb = oversized.length === 1 ? 'exceeds' : 'exceed';
 		const addresses = listed.map((row) => `${row.lineNumber}p`).join(';');
 		const moreHint = hiddenCount > 0
-			? ` ${hiddenCount} more oversized line(s). Use read with offset to inspect them.`
+			? ` ${hiddenCount} more oversized line(s). Use read_with_anchors with offset to inspect them.`
 			: '';
 		const warning = `[${lineLabel} ${verb} ${formatSize(maxBytes)}; content not shown. Inspect with bash: sed -n '${addresses}' <path> | head -c ${maxBytes}${moreHint}]`;
 		let preview = skippedTruncation.content;
@@ -170,7 +170,7 @@ export async function fmtReadPreview(
 export function regRead(pi: ExtensionAPI, flags: EditToolFlags = DEFAULT_EDIT_FLAGS): void {
   const prompted = withReadPrompts({ description: R_DESC, snippet: R_SNIPPET, guidelines: readGuide() }, flags);
   pi.registerTool({
-    name: "read",
+    name: "read_with_anchors",
     label: "Read",
     description: prompted.description,
     promptSnippet: prompted.snippet,
@@ -257,7 +257,7 @@ export function regRead(pi: ExtensionAPI, flags: EditToolFlags = DEFAULT_EDIT_FL
 					resolvedPath,
 				);
 				serveRows(resolvedPath, fileHashes, fileLines, preview.servedHashes);
-				const snapshotId = await safeSnapId(absolutePath, "read");
+				const snapshotId = await safeSnapId(absolutePath, "read_with_anchors");
 				const reclaimNotice = formatAnchorReclaimNotice(takeReclaimedPaths());
 				const previewText = [
 					preview.text,

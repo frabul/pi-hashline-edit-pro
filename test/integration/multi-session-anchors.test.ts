@@ -29,7 +29,7 @@ describe("multi-session anchor isolation", () => {
       const { getTool } = await setup(dir);
       const ctxA = sessionContext(dir, join(dir, "session-a.jsonl"));
       const ctxB = sessionContext(dir, join(dir, "session-b.jsonl"));
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
       const replaceTool = getTool("replace");
 
       const readA = await readTool.execute("rA", { path: "fileA.txt" }, undefined, undefined, ctxA);
@@ -65,7 +65,7 @@ describe("multi-session anchor isolation", () => {
     await withTempDir("pi-hashline-multi-switch-", async (dir) => {
       const { getTool } = await setup(dir);
       const ctxA = sessionContext(dir, join(dir, "switch-a.jsonl"));
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
       const replaceTool = getTool("replace");
 
       const readA = await readTool.execute("rA", { path: "fileA.txt" }, undefined, undefined, ctxA);
@@ -90,7 +90,7 @@ describe("multi-session anchor isolation", () => {
       const { getTool } = await setup(dir);
       const ctxA = sessionContext(dir, join(dir, "par-a.jsonl"));
       const ctxB = sessionContext(dir, join(dir, "par-b.jsonl"));
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
       const replaceTool = getTool("replace");
 
       const readA = await readTool.execute("rA", { path: "fileA.txt" }, undefined, undefined, ctxA);

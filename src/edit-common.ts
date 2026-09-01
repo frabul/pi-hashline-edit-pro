@@ -39,7 +39,7 @@ export async function currentEditFlags(): Promise<EditToolFlags> {
 }
 
 function preferenceGuideline(flags: EditToolFlags): string {
-  const tools = gatedEditOps(["read", "replace", "replace_within", "insert", "copy", "move", "undo_last_change"], flags);
+  const tools = gatedEditOps(["read_with_anchors", "replace", "replace_within", "insert", "copy", "move", "undo_last_change"], flags);
   return `Prefer the hashline tools for anything that touches files: ${joinOps(tools, { backtick: true })}.`;
 }
 
@@ -78,7 +78,7 @@ export function withReadPrompts(base: { description: string; snippet: string; gu
   const withoutAutoReadAll = base.guidelines.filter((guideline) => !guideline.includes("E_AUTO_READ_ALL"))
   if (flags.autoRead) return { description: base.description, snippet: base.snippet, guidelines: [preference, ...withoutAutoReadAll] };
   const guidelines = [preference, ...withoutAutoReadAll];
-  const mapped = guidelines.map((guideline) => guideline.startsWith("`read`: call again after an edit") ? "`read`: call again after an edit when you need anchors you lack." : guideline);
+  const mapped = guidelines.map((guideline) => guideline.startsWith("`read_with_anchors`: call again after an edit") ? "`read_with_anchors`: call again after an edit when you need anchors you lack." : guideline);
   return { description: base.description, snippet: base.snippet, guidelines: mapped };
 }
 
@@ -182,7 +182,7 @@ function staleAnchorMessage(ref: string, hash: string, owners: Array<OwnedAnchor
     folded.length > 0
       ? ` Anchors are case-sensitive; ${folded.map((match) => `"${match.anchor}"`).join(", ")} differs only in case.`
       : "";
-  return `[E_STALE_ANCHOR] "${ref}" is not owned in this session.${hint} Call read() on the target file first.`;
+  return `[E_STALE_ANCHOR] "${ref}" is not owned in this session.${hint} Call read_with_anchors() on the target file first.`;
 }
 
 export function resolveEditTarget(removeFrom: string, removeTo?: string): string {

@@ -211,12 +211,12 @@ export function setupIntegrationTest(cwd: string) {
   const { pi, handlers, getTool } = makeFakePiRegistry();
   register(pi);
   const ctx = { cwd, ui: { notify() {} } } as any;
-  return { pi, handlers, getTool, ctx, readTool: getTool("read"), editTool: getTool("replace") };
+  return { pi, handlers, getTool, ctx, readTool: getTool("read_with_anchors"), editTool: getTool("replace") };
 }
 export function setupReadTest(cwd: string) {
   const { pi, getTool } = makeFakePiRegistry();
   register(pi);
-  return { readTool: getTool("read"), ctx: { cwd } as any };
+  return { readTool: getTool("read_with_anchors"), ctx: { cwd } as any };
 }
 export function getText(result: { content: Array<{ text?: string }> }): string {
   return result.content[0]?.text ?? "";

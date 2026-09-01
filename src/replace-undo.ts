@@ -184,7 +184,7 @@ export function regUndo(pi: ExtensionAPI, flags: EditToolFlags = DEFAULT_EDIT_FL
               content: [
                 {
                   type: "text",
-                  text: `[E_UNDO_STALE] Cannot undo last change on ${path}: the file was modified after the edit, so nothing was reverted and the file was left untouched. The undo record is kept. Do not edit the file to force the undo. Call read() to inspect the current state.`
+                  text: `[E_UNDO_STALE] Cannot undo last change on ${path}: the file was modified after the edit, so nothing was reverted and the file was left untouched. The undo record is kept. Do not edit the file to force the undo. Call read_with_anchors() to inspect the current state.`
                 },
               ],
               isError: true,
@@ -242,7 +242,7 @@ export function regUndo(pi: ExtensionAPI, flags: EditToolFlags = DEFAULT_EDIT_FL
             );
           }
           parts.push(
-            "Call read for fresh anchors.",
+            "Call read_with_anchors for fresh anchors.",
           );
           const reclaimNotice = formatAnchorReclaimNotice(takeReclaimedPaths());
           if (reclaimNotice !== undefined) parts.push(reclaimNotice);

@@ -148,7 +148,7 @@ describe("batch vs solo equivalence", () => {
       const { pi, getTool } = makeFakePiRegistry();
       register(pi);
       const ctx = { cwd: dir, ui: { notify() {} } } as any;
-      const readTool = getTool("read");
+      const readTool = getTool("read_with_anchors");
       const replaceTool = getTool("replace");
       const insertTool = getTool("insert");
       const batchPath = join(dir, "batch.txt");

@@ -86,7 +86,7 @@ pi install /path/to/pi-hashline-edit-pro
 
 | Built-in | Effect |
 | --- | --- |
-| `read` | overridden, returns `anchor│content` rows |
+| `read` | kept as the built-in line-numbered read; use `read_with_anchors` for `anchor│content` rows |
 | `edit` | disabled |
 | `grep` | disabled while `anchor_grep` is enabled |
 | `copy`, `move` | disabled while Copy/move is off |
@@ -94,11 +94,11 @@ pi install /path/to/pi-hashline-edit-pro
 | `write` | kept; an auto-read block with fresh anchors is appended to its result |
 | `bash` | untouched |
 
-If anything of yours expects line-numbered `read` output (prompts, skills, hooks), account for the override before installing.
+The built-in `read` keeps its line-numbered output; prompts, skills, and hooks that expect it are unaffected.
 
 ### Verify
 
-After install, `read` any file and confirm the rows look like this:
+After install, call `read_with_anchors` on any file and confirm the rows look like this:
 
 ```text
 Dafo│function hello() {
@@ -155,11 +155,11 @@ Nothing commits until an edit call returns: the extension validates the request 
 
 ## Tools
 
-The extension registers eight tools: `read`, `replace`, `replace_within`, `insert`, `copy`, `move`, `anchor_grep`, and `undo_last_change`. The built-in `edit` tool is disabled. `copy` and `move` are enabled by default; turn Copy/move off in `/hashline-config` to remove both. `replace_within` is enabled by default; turn Replace within off in `/hashline-config` to remove it. `replace`, `replace_within`, `insert`, `copy`, and `move` take no `path` parameter by default: the file is resolved from the anchors' session ownership alone, so an edit can only land on the file the anchors were served for. Opt in with `/hashline-config` to require `path` in `replace`, `replace_within`, `insert`, `copy`, and `move` for RPC visibility (for example pimacs.el); anchors still resolve the target and `path` must match.
+The extension registers eight tools: `read_with_anchors`, `replace`, `replace_within`, `insert`, `copy`, `move`, `anchor_grep`, and `undo_last_change`. The built-in `edit` tool is disabled. `copy` and `move` are enabled by default; turn Copy/move off in `/hashline-config` to remove both. `replace_within` is enabled by default; turn Replace within off in `/hashline-config` to remove it. `replace`, `replace_within`, `insert`, `copy`, and `move` take no `path` parameter by default: the file is resolved from the anchors' session ownership alone, so an edit can only land on the file the anchors were served for. Opt in with `/hashline-config` to require `path` in `replace`, `replace_within`, `insert`, `copy`, and `move` for RPC visibility (for example pimacs.el); anchors still resolve the target and `path` must match.
 
-### read
+### read_with_anchors
 
-`read` returns a text file with every line prefixed by `anchor│content`. The anchor is the line's address.
+`read_with_anchors` returns a text file with every line prefixed by `anchor│content`. The anchor is the line's address.
 
 | Parameter | Description |
 | --- | --- |
@@ -209,7 +209,7 @@ Auto-fixable slips fall into two groups. Fixed silently: a reversed range, embed
 
 Content containing a NUL byte (`U+0000`) is rejected with `[E_BAD_SHAPE]` before any file I/O: writing it would make the file binary, so use an empty replacement to delete. This applies to `replace`'s `replacement_lines` and `insert`'s `lines`.
 
-Every line in the removed range must match what was last shown to you, except that a pure deletion (an empty replacement) verifies only the first and last line of the range and removes the interior as it currently stands. The extension records the `anchor│content` rows it serves (`read` output, `anchor_grep` output, the auto-read block after `write`, the `+anchor│` and ` anchor│` rows of post-edit diffs, the current-range rows of `[E_RANGE_STALE]` feedback, and the context rows of stale-anchor feedback) and verifies the whole range against that record before writing. A line that changed on disk since it was shown, or an anchor that is not owned in this session, refuses the edit with `[E_RANGE_STALE]` or `[E_STALE_ANCHOR]` and returns the current range with fresh anchors, so the retry needs no `read`. An owned anchor enters the served record when its row is shown (after a restart, restored ownership counts as shown), so a file with no owned anchors cannot be edited by anchor at all; call `read` first. An owned line that was never shown, for example beyond an auto-read preview's truncation cap, is refused with `[E_RANGE_STALE]` and returns the current range, so the retry still needs no `read`; only lines strictly between the boundaries of a pure deletion are exempt.
+Every line in the removed range must match what was last shown to you, except that a pure deletion (an empty replacement) verifies only the first and last line of the range and removes the interior as it currently stands. The extension records the `anchor│content` rows it serves (`read_with_anchors` output, `anchor_grep` output, the auto-read block after `write`, the `+anchor│` and ` anchor│` rows of post-edit diffs, the current-range rows of `[E_RANGE_STALE]` feedback, and the context rows of stale-anchor feedback) and verifies the whole range against that record before writing. A line that changed on disk since it was shown, or an anchor that is not owned in this session, refuses the edit with `[E_RANGE_STALE]` or `[E_STALE_ANCHOR]` and returns the current range with fresh anchors, so the retry needs no `read_with_anchors`. An owned anchor enters the served record when its row is shown (after a restart, restored ownership counts as shown), so a file with no owned anchors cannot be edited by anchor at all; call `read_with_anchors` first. An owned line that was never shown, for example beyond an auto-read preview's truncation cap, is refused with `[E_RANGE_STALE]` and returns the current range, so the retry still needs no `read_with_anchors`; only lines strictly between the boundaries of a pure deletion are exempt.
 
 An edit that changes neither content nor line endings reports `No changes made` and leaves the anchors alone.
 
@@ -219,7 +219,7 @@ After a successful edit, the diff is capped at 50KB. A row over 50KB is shown as
 
 `replace_within` changes part of a line (or a range of lines) without retyping the rest. `replace_from` and `replace_to` are bare anchors marking the first and last line of the range; use the same anchor for a single line. `replace_old` is the exact text to find inside that range, and `replace_new` replaces just that match; every other character stays untouched. That makes it the tool for a change the request quotes as a substring: a whole-line `replace` has to reproduce the rest of the line, so a slipped character becomes a wrong byte, while `replace_within` leaves everything the request did not name untouched. It is enabled by default; turn Replace within off in `/hashline-config` to remove the tool.
 
-`replace_old` is matched against the range's text (LF line breaks, no final terminator) and must occur exactly once. A missing match is refused with `[E_SUBSTRING_NOT_FOUND]` and the current `anchor│content` rows; a repeated match is refused with `[E_SUBSTRING_AMBIGUOUS]` and the matching line numbers. Both refusals carry enough to retry without a `read`.
+`replace_old` is matched against the range's text (LF line breaks, no final terminator) and must occur exactly once. A missing match is refused with `[E_SUBSTRING_NOT_FOUND]` and the current `anchor│content` rows; a repeated match is refused with `[E_SUBSTRING_AMBIGUOUS]` and the matching line numbers. Both refusals carry enough to retry without a `read_with_anchors`.
 
 A `replace_within` call is never grouped into a batch; it commits on its own like `copy` and `move`. The post-edit diff carries fresh anchors, and the edit is undoable with `undo_last_change`.
 
@@ -271,7 +271,7 @@ The same safety machinery as `replace` applies to both tools: undo is saved befo
 
 `anchor_grep` is an anchored search backed by ripgrep. It is enabled by default; disable it in `/hashline-config` (or set `anchorGrepEnabled` to `false` in the config file). While it is enabled, the built-in grep is disabled. Disabling it removes the tool and restores the built-in grep only if that was active before the extension loaded.
 
-Every matching line, and each requested context line, is returned as `lineNumber │ anchor│content`. The `anchor│content` part is served exactly like `read` output, so you can target it with `replace` or `insert` without a separate `read`; the line-number gutter and `=== path ===` header give filename and line for navigation.
+Every matching line, and each requested context line, is returned as `lineNumber │ anchor│content`. The `anchor│content` part is served exactly like `read_with_anchors` output, so you can target it with `replace` or `insert` without a separate `read_with_anchors`; the line-number gutter and `=== path ===` header give filename and line for navigation.
 
 | Field | Description |
 | --- | --- |
@@ -317,25 +317,25 @@ Batched calls must target disjoint ranges; overlapping ranges, or any failing ca
 
 A call whose anchors resolve nowhere never joins a batch: it runs on its own and fails with its own error (`[E_STALE_ANCHOR]`, or `[E_BAD_SHAPE]` when its request cannot be parsed), while the same-file batch in the message still commits. Calls with one stale anchor and a valid co-anchor, or with a `requirePath` path hint, are grouped into their file's batch and abort it instead of applying partially. An error that aborts a batch ends with `Aborts batch N.`; an aborted call reads `[E_OP_ABORTED] Batch N aborted: [<kind>] Call Nr <X> errored [<code>]`, naming the failing call and its error code (or `[E_OP_ABORTED] Batch N aborted.` when the failing error carries no code). Anchor capacity is preflighted before writing; if anchor finalization fails after the write, the error states the file was written with one undo available. Verify each batch diff before the next turn's edits on that file.
 
-The hashline tools are sequential in pi, so a message that contains one runs all of its tool calls one at a time in the order given; a `read` or shell `cat` issued before the edit commits can still observe the pre-commit state, so verify in the next message with the post-edit diff or a fresh `read`.
+The hashline tools are sequential in pi, so a message that contains one runs all of its tool calls one at a time in the order given; a `read_with_anchors` or shell `cat` issued before the edit commits can still observe the pre-commit state, so verify in the next message with the post-edit diff or a fresh `read`.
 
 ## Auto-read
 
-Auto-read is enabled by default. After a successful `write`, the extension reads the file and appends an `--- Auto-read (hashline anchors) ---` block, so you get fresh `anchor│content` anchors without a separate `read` call.
+Auto-read is enabled by default. After a successful `write`, the extension reads the file and appends an `--- Auto-read (hashline anchors) ---` block, so you get fresh `anchor│content` anchors without a separate `read_with_anchors` call.
 
-After `replace`, `replace_within`, `insert`, `copy`, `move`, and `undo_last_change`, the result shows the post-edit diff. Inside a same-message batch, only the batch's last call shows the combined diff, headed by a `batch N:` line; earlier calls reply `In batch N (queued)`. The `+anchor│` and ` anchor│` rows carry the current anchors, so follow-up edits can anchor on the diff directly. The `-anchor│` rows show removed lines with their old anchors, which are stale after the edit. When the context line next to a change is blank or whitespace-only, one more context line is shown in that direction, so the change stays anchored to visible content. Call `read` when you want the full file's anchors.
+After `replace`, `replace_within`, `insert`, `copy`, `move`, and `undo_last_change`, the result shows the post-edit diff. Inside a same-message batch, only the batch's last call shows the combined diff, headed by a `batch N:` line; earlier calls reply `In batch N (queued)`. The `+anchor│` and ` anchor│` rows carry the current anchors, so follow-up edits can anchor on the diff directly. The `-anchor│` rows show removed lines with their old anchors, which are stale after the edit. When the context line next to a change is blank or whitespace-only, one more context line is shown in that direction, so the change stays anchored to visible content. Call `read_with_anchors` when you want the full file's anchors.
 
 An edit that changes only line endings has no content diff; the result still reports `applied`, and one `undo_last_change` reverts it.
 
-Auto-read keeps the same 50KB and 2000-line budget as `read`. Auto-read and Diff context live in `/hashline-config` and persist across sessions. The post-edit diff shows 1 surrounding line by default; change Diff context in `/hashline-config` (0-10, needs Auto-read) to show more or fewer.
+Auto-read keeps the same 50KB and 2000-line budget as `read_with_anchors`. Auto-read and Diff context live in `/hashline-config` and persist across sessions. The post-edit diff shows 1 surrounding line by default; change Diff context in `/hashline-config` (0-10, needs Auto-read) to show more or fewer.
 
 ## Auto-read all
 
-Auto-read all is off by default and has three modes, selected in `/hashline-config`: `off` injects nothing, `on` discovers every file in the working directory that is not git-ignored (`git ls-files`, falling back to `ripgrep`, then to a directory walk), and `git` uses `git ls-files` only, injecting nothing when the working directory is not a git repository. On the first turn of a session, the extension discovers the files, reads each one, and attaches the resulting `anchor│content` rows to the conversation as one extension message before the model answers. Those anchors are served exactly like `read` output, so the model can `replace` and `insert` immediately without calling `read` first. The message is injected once per session; resumed, forked, and cloned sessions that already contain it skip the injection.
+Auto-read all is off by default and has three modes, selected in `/hashline-config`: `off` injects nothing, `on` discovers every file in the working directory that is not git-ignored (`git ls-files`, falling back to `ripgrep`, then to a directory walk), and `git` uses `git ls-files` only, injecting nothing when the working directory is not a git repository. On the first turn of a session, the extension discovers the files, reads each one, and attaches the resulting `anchor│content` rows to the conversation as one extension message before the model answers. Those anchors are served exactly like `read_with_anchors` output, so the model can `replace` and `insert` immediately without calling `read_with_anchors` first. The message is injected once per session; resumed, forked, and cloned sessions that already contain it skip the injection.
 
 Files are filtered before injection: symlinks, directories, image extensions (including SVG), binary files (a NUL byte in the first 8KB), files over 200KB, any path with a vendored segment (vendor, node_modules, bower_components, third_party, thirdparty, jspm_packages, .venv, venv, site-packages, __pycache__, .tox, .gradle, .terraform, Pods, Carthage, DerivedData, coreui, coreui-icons, case-insensitive), and vendored or generated names and patterns (*.min.js, *.min.css, *.min.mjs, *-min.js, *-min.css, *.bundle.*, *.chunk.*, *.umd.js, *.map, *.lock, package-lock.json, yarn.lock, composer.lock, Gemfile.lock, Cargo.lock, poetry.lock, Pipfile.lock, go.sum, flake.lock, *.generated.*, *.gen.*, *_pb2.py, *.pb.go, *.g.dart, *.freezed.dart, *.designer.cs, *.g.cs, *.snap, .eslintcache, coreui-icons.*, coreui.css) are skipped. The attachment stops at 500 files or at a byte budget derived from the model context window (200KB floor, 2MB ceiling), and it never drops below one file. Skipped and not-attached files are named at the end of the message so the model can `read` them on demand.
 
-Each attached file is shown as `=== path ===` followed by its `anchor│content` rows. Edit directly from the attachment with replace and insert, so no `read` is needed. Files attach whole.
+Each attached file is shown as `=== path ===` followed by its `anchor│content` rows. Edit directly from the attachment with replace and insert, so no `read_with_anchors` is needed. Files attach whole.
 
 A coverage line after the header reports the complete count. A `[files complete: [...] omitted: [...]]` line right after it lists every attached complete file and omitted file in one place. Check that line instead of scanning sections.
 
@@ -346,7 +346,7 @@ The setting lives in `/hashline-config` as Auto-read all and in `config.json` as
 | Command | Description |
 | --- | --- |
 | `/hashline-config` | Open the settings window: auto-read anchors, auto-read all mode, ignore folders/files, diff context lines, `anchor_grep` tool, copy/move tools, replace_within tool, required `path`, and strict input. Persists across sessions. |
-| `/clear-anchors` | Clear the session's anchor claims. Anchors are re-claimed on the next `read`. |
+| `/clear-anchors` | Clear the session's anchor claims. Anchors are re-claimed on the next `read_with_anchors`. |
 
 Settings live in `~/.config/pi-hashline-edit-pro/config.json`, created when a setting is first changed in `/hashline-config`:
 
@@ -382,9 +382,9 @@ When `PI_HASHLINE_DIR` is unset or empty, non-Windows platforms honor `XDG_CONFI
 
 | Limit | Value | Applies to |
 | --- | --- | --- |
-| Output cap | 2000 lines and 50KB | `read`, auto-read after `write`, post-edit diffs, patches, previews, `details.patch` |
+| Output cap | 2000 lines and 50KB | `read_with_anchors`, auto-read after `write`, post-edit diffs, patches, previews, `details.patch` |
 | Oversized row | 50KB per `anchor│content` row | replaced by an anchor-keeping marker you can still edit through |
-| Line cap | 1,353,139 lines per file | `read`, `replace`, `replace_within`, `insert`, `copy`, `move` (`[E_FILE_TOO_LARGE]`) |
+| Line cap | 1,353,139 lines per file | `read_with_anchors`, `replace`, `replace_within`, `insert`, `copy`, `move` (`[E_FILE_TOO_LARGE]`) |
 | File size | 100MB | all tools (`[E_FILE_TOO_LARGE]`) |
 | Hash window | first 500 bytes of a line | anchor identity for long lines |
 | Patch guard | 1MB of pre-edit + post-edit text | patch generation is skipped and `patchTruncated` is set |
@@ -396,7 +396,7 @@ When `PI_HASHLINE_DIR` is unset or empty, non-Windows platforms honor `XDG_CONFI
 | Stale-range feedback | first 100 lines | rows returned with `[E_RANGE_STALE]` |
 | Session anchors | 1,353,139 anchors in use | all tools; the least recently read or edited files are freed when the quota is exhausted (`[W_ANCHOR_RECLAIMED]`) |
 
-`anchor_grep` uses the same 100MB file-size cutoff as `read`. Files over the line cap are skipped silently in directory searches.
+`anchor_grep` uses the same 100MB file-size cutoff as `read_with_anchors`. Files over the line cap are skipped silently in directory searches.
 
 ## Tool result details
 
@@ -404,7 +404,7 @@ All eight tools return machine-readable metadata in `details` alongside the mode
 
 | Tool | `details` |
 | --- | --- |
-| `read` | `truncation` (set when output was truncated), `snapshotId` (a `v2\|path\|ino\|mtime\|ctime\|size` fingerprint), `nextOffset` (use as the next `offset`), and `metrics` with `truncated` and `next_offset`. |
+| `read_with_anchors` | `truncation` (set when output was truncated), `snapshotId` (a `v2\|path\|ino\|mtime\|ctime\|size` fingerprint), `nextOffset` (use as the next `offset`), and `metrics` with `truncated` and `next_offset`. |
 | `replace`, `insert` | `diff` (post-edit diff, capped, with current anchors on `+anchor│` and ` anchor│` rows; a same-message batch reports the combined diff on its last call and an empty diff on earlier calls), `patch` (a standard unified patch for external tools, capped like the diff), `patchTruncated` (true when the patch was cut or skipped for a pair over 1MB and can no longer be applied as-is), `firstChangedLine`, `snapshotId`, `classification` (`"noop"` when nothing changed), `batch` (`{ id, size, last, total }` marking same-message batch membership; earlier members also carry `aborted: true` and `abortMessage` after a batch abort), `hints` (informative `[H_*]` notices, for example literal escaped text written as sent), and `metrics`: `edits_attempted`, `edits_noop`, `warnings`, `classification` (`"applied"` or `"noop"`), `changed_lines` (`{ first, last }`), `added_lines`, `removed_lines`. |
 | `replace_within` | Same shape as `replace`: `diff` (post-edit diff with current anchors), `patch`, `patchTruncated`, `firstChangedLine`, `snapshotId`, `classification` (`"noop"` when nothing changed), and `metrics` with the same counters. |
 | `copy`, `move` | Same shape as `replace`: `diff` (post-edit diff with current anchors), `patch`, `patchTruncated`, `firstChangedLine`, `snapshotId`, `classification` (`"noop"` when a move changes nothing), and `metrics` with the same counters. |
@@ -415,11 +415,11 @@ All eight tools return machine-readable metadata in `details` alongside the mode
 
 ## Error, warning, and hint codes
 
-Codes starting with `E_` are errors: nothing was written, with one exception. `File was written; anchor finalization failed` means the file was written and one undo reverts it. Codes starting with `W_` are warnings: the call succeeded with an auto-fix notice or an anchor-reclaim notice; check `classification` (`applied` vs `noop`) in `details.metrics` to tell whether bytes changed. Codes starting with `H_` are hints: the call succeeded and the file holds exactly what was requested, so the notice is informational, never blocks an edit (not even in strict-input mode), and is reported in `details.hints` instead of `details.warnings`. `[E_AUTO_READ_ALL]` is informational rather than a failure: the `read` was refused because the file is unchanged since the start-of-session auto-read, so the attached content is still exact.
+Codes starting with `E_` are errors: nothing was written, with one exception. `File was written; anchor finalization failed` means the file was written and one undo reverts it. Codes starting with `W_` are warnings: the call succeeded with an auto-fix notice or an anchor-reclaim notice; check `classification` (`applied` vs `noop`) in `details.metrics` to tell whether bytes changed. Codes starting with `H_` are hints: the call succeeded and the file holds exactly what was requested, so the notice is informational, never blocks an edit (not even in strict-input mode), and is reported in `details.hints` instead of `details.warnings`. `[E_AUTO_READ_ALL]` is informational rather than a failure: the `read_with_anchors` was refused because the file is unchanged since the start-of-session auto-read, so the attached content is still exact.
 
 Most common, with the fix:
 
-- `[E_STALE_ANCHOR]`: the anchor is not owned in this session. Call `read` for fresh anchors and retry.
+- `[E_STALE_ANCHOR]`: the anchor is not owned in this session. Call `read_with_anchors` for fresh anchors and retry.
 - `[E_RANGE_STALE]`: a line in the replaced range changed on disk or was never shown (a pure deletion checks only its first and last line). The error already returns the current range with fresh anchors; retry with those.
 - `[E_FILE_TOO_LARGE]`: the file exceeds the 1,353,139-line hashline limit or the 100MB size limit. Use `write` for very large files.
 - `[E_STORE_UNAVAILABLE]`: no SQLite runtime. Run pi under Node 22.19+ or a Bun build that ships `bun:sqlite`.
@@ -437,7 +437,7 @@ Full reference:
 | `[E_SUBSTRING_NOT_FOUND]` | `replace_within` did not find `replace_old` in the selected range. The current `anchor│content` rows are returned; copy `replace_old` exactly from the served row and retry. |
 | `[E_SUBSTRING_AMBIGUOUS]` | `replace_within` found `replace_old` more than once in the selected range. Narrow `replace_from`/`replace_to` or extend `replace_old` so it matches exactly once. |
 | `[W_BAD_REF]` | A pasted `anchor│` or diff-preview marker was stripped from an anchor field with a warning. |
-| `[E_STALE_ANCHOR]` | An anchor is not owned in this session (it was never shown to you, or its line was edited or the file was rewritten); call `read` for fresh anchors. |
+| `[E_STALE_ANCHOR]` | An anchor is not owned in this session (it was never shown to you, or its line was edited or the file was rewritten); call `read_with_anchors` for fresh anchors. |
 | `[W_INVALID_PATCH]` | A `replacement_lines` line is a diff-preview row (`+anchor│`, `-anchor│`, `-    │`). The marker is stripped automatically with a warning. |
 | `[W_BARE_HASH_PREFIX]` | A `replacement_lines` line starts with an `anchor│` prefix. The prefix is stripped automatically with a warning. |
 | `[W_ANCHOR_RECLAIMED]` | The session's anchor quota was exhausted, so all anchors of the listed files (the least recently read or edited) were freed to make room. Read those files again before editing them. |
@@ -461,7 +461,7 @@ Full reference:
 | `[E_WRITE_HASH_ECHO]` | A `write` `content` line reproduces a served row for this file (a bare `anchor│` read row, a `+anchor│`, ` anchor│`, or `-anchor│` diff row, or a `lineNumber │ anchor│content` grep row). The write is refused, file byte-identical; retry with bare content (remove the copied anchors). |
 | `[E_PATH_CHANGED]` | A write target changed identity after it was read; the write was refused to avoid following a swapped symlink or overwriting a replacement file. |
 | `[E_BATCH_OVERLAP]` | Batched `replace`/`insert` calls target overlapping ranges; the whole batch was refused. One `before` plus one `after` insert on the same anchor line is not an overlap. Retry with disjoint ranges. |
-| `[E_OP_ABORTED]` | An edit aborted (a same-message batch member failed, or the file changed or was deleted after the edit started). Nothing was written. Fix the sibling failure and retry the batch, otherwise call `read` for fresh anchors and retry. The abort names the failing call and its error code when one is known. |
+| `[E_OP_ABORTED]` | An edit aborted (a same-message batch member failed, or the file changed or was deleted after the edit started). Nothing was written. Fix the sibling failure and retry the batch, otherwise call `read_with_anchors` for fresh anchors and retry. The abort names the failing call and its error code when one is known. |
 | `[E_UNSAFE_REGEX]` | A grep regex can trigger excessive backtracking; simplify it or search with `literal: true`. |
 | `[E_GREP_FAILED]` | `anchor_grep` could not start ripgrep or ripgrep exited with an error (for example a pattern valid in JavaScript but unsupported by ripgrep's regex engine); the message carries ripgrep's output. Retry with `literal: true` or simplify the pattern. |
 | `[E_GREP_TIMEOUT]` | `anchor_grep` timed out after 10 seconds; narrow `path` or simplify `pattern` and retry. |
@@ -469,15 +469,15 @@ Full reference:
 
 ## Troubleshooting
 
-- Stale anchors. `[E_STALE_ANCHOR]` means an anchor is not owned in this session: it was never shown to you, or its line was edited or the file was rewritten since. Call `read` for fresh anchors and retry.
-- Range changed on disk. `[E_RANGE_STALE]` means a line inside the replaced range changed after it was last shown to you (or was never shown; a pure deletion only needs its first and last line shown). Nothing was modified; the error carries the current range with fresh anchors, so retry with those without a `read`.
+- Stale anchors. `[E_STALE_ANCHOR]` means an anchor is not owned in this session: it was never shown to you, or its line was edited or the file was rewritten since. Call `read_with_anchors` for fresh anchors and retry.
+- Range changed on disk. `[E_RANGE_STALE]` means a line inside the replaced range changed after it was last shown to you (or was never shown; a pure deletion only needs its first and last line shown). Nothing was modified; the error carries the current range with fresh anchors, so retry with those without a `read_with_anchors`.
 - Multi-conversation hosts. Anchors, served records, and ownership logs are resolved per calling session, so a tool call in one conversation is never answered by another conversation's registry; a foreign anchor fails with `[E_STALE_ANCHOR]`. Interactive previews are the one exception: pi does not pass the session into render callbacks, so when one process serves several conversations at once a preview can fall back to the most recently active session and show a stale or wrong-file diff. Previews never write files or claim anchors; run the call for the authoritative result.
 - Undo scope. `undo_last_change` records are keyed by file path, not by session, so in a multi-conversation host any conversation that names the file can revert its most recent `replace` or `insert`, even one made by another conversation. Anchor ownership remains session-scoped; only undo is shared.
 - Reset the anchor state. Anchors live in `~/.config/pi-hashline-edit-pro/hash-store.sqlite` (with `-wal`/`-shm` sidecars) and in per-session ownership logs under `~/.config/pi-hashline-edit-pro/sessions/`. Quit pi, delete those files, and everything is rebuilt on the next session. Anchor history is lost, but no project files are touched.
 - Corrupt store. If the store fails its health check it is renamed to `hash-store.sqlite.corrupt-<timestamp>` and rebuilt automatically.
 - Config directory moved. If `XDG_CONFIG_HOME` is set on a non-Windows platform, the config directory (and the anchor state inside it) lives at `$XDG_CONFIG_HOME/pi-hashline-edit-pro` instead of `~/.config/pi-hashline-edit-pro`. An existing store is not migrated automatically. To keep anchor and undo history, move the old `hash-store.sqlite` files (plus `-wal`/`-shm` sidecars) into the new directory before the first run.
 - Windows drives in WSL. Editing a file under a Windows mount (`/mnt/c`, drvfs/9p) can fail with `EPERM` from `fchmod` because those filesystems do not store POSIX modes. Mode preservation is best-effort there, so `replace`, `replace_within`, `insert`, and `undo_last_change` still write the edit.
-- Not sure what the extension changed. `read` returns anchored rows and the built-in `edit` is gone; that is expected. See [What changes in your session](#what-changes-in-your-session).
+- Not sure what the extension changed. `read_with_anchors` returns anchored rows and the built-in `edit` is gone; that is expected. See [What changes in your session](#what-changes-in-your-session).
 
 ## Privacy and on-disk state
 
@@ -503,7 +503,7 @@ Background snapshot pruning and registry sidecar GC skip `EPERM`/`EACCES` withou
 
 ### Allocation
 
-Anchors are allocated, never derived. Every line that is served to you, by `read`, `anchor_grep`, the auto-read block after `write`, or a post-edit diff, gets the next free anchor from the session's pool, claimed by walking the table with a stride of 836,286 entries (coprime to the 1,353,139-entry table), so consecutively minted anchors land in unrelated regions of the table instead of sharing leading characters. Each session seeds its walk from its own offset (derived from the session key and the process id), so concurrent sessions mint different sequences instead of identical ones: an anchor minted in one session is unknown in another and is rejected with `[E_STALE_ANCHOR]` rather than resolving to a different file. Ownership is exclusive: an anchor is owned by one file's line until it is freed (the line was edited, the file was written or deleted, you ran `/clear-anchors`, or the session's quota ran out and the file was the least recently read or edited, which frees all of its anchors and reports it in `[W_ANCHOR_RECLAIMED]`). Minting prefers anchors the session has never used; when a bounded fresh-anchor probe finds nothing, freed anchors are recycled after their stale served records are purged, so an anchor is never shared by two live lines. Because ownership is exclusive, an anchor resolves to exactly one file. Two byte-identical lines never share an anchor, and that guarantee sets the file size cap: the pool is the shipped table's 1,353,139 entries (not all 52⁴ letter combinations), so a file can hold at most 1,353,139 lines, beyond which `read`, `replace`, `replace_within`, `insert`, `copy`, and `move` reject with `[E_FILE_TOO_LARGE]` (use `write` for very large files).
+Anchors are allocated, never derived. Every line that is served to you, by `read_with_anchors`, `anchor_grep`, the auto-read block after `write`, or a post-edit diff, gets the next free anchor from the session's pool, claimed by walking the table with a stride of 836,286 entries (coprime to the 1,353,139-entry table), so consecutively minted anchors land in unrelated regions of the table instead of sharing leading characters. Each session seeds its walk from its own offset (derived from the session key and the process id), so concurrent sessions mint different sequences instead of identical ones: an anchor minted in one session is unknown in another and is rejected with `[E_STALE_ANCHOR]` rather than resolving to a different file. Ownership is exclusive: an anchor is owned by one file's line until it is freed (the line was edited, the file was written or deleted, you ran `/clear-anchors`, or the session's quota ran out and the file was the least recently read or edited, which frees all of its anchors and reports it in `[W_ANCHOR_RECLAIMED]`). Minting prefers anchors the session has never used; when a bounded fresh-anchor probe finds nothing, freed anchors are recycled after their stale served records are purged, so an anchor is never shared by two live lines. Because ownership is exclusive, an anchor resolves to exactly one file. Two byte-identical lines never share an anchor, and that guarantee sets the file size cap: the pool is the shipped table's 1,353,139 entries (not all 52⁴ letter combinations), so a file can hold at most 1,353,139 lines, beyond which `read_with_anchors`, `replace`, `replace_within`, `insert`, `copy`, and `move` reject with `[E_FILE_TOO_LARGE]` (use `write` for very large files).
 
 ### Ownership and mapping across edits
 

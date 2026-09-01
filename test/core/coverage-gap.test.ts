@@ -169,7 +169,7 @@ describe("gap read rendering", () => {
     const { pi, getTool } = makeFakePiRegistry();
     const { regRead } = await import("../../src/read");
     regRead(pi as never);
-    const tool = getTool("read");
+    const tool = getTool("read_with_anchors");
     const theme = fakeTheme();
     const partial = tool.renderResult({ content: [{ type: "text", text: "x" }] }, { isPartial: true }, theme, {});
     expect(partial).toBeDefined();

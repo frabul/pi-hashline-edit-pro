@@ -27,7 +27,7 @@ const SCAN_LIMIT_MULTIPLIER = 4;
 const MAX_REPORTED_OMISSIONS = 50;
 
 const HEADER =
-  "[hashline auto-read-all] Every non-ignored project file is attached below as `=== path ===` then `anchor│content` rows with live anchors.\nEdit directly from the attachment with replace and insert; do not call read for files in [files complete: ...].\nFiles listed as omitted or not attached can be read normally.\nAnchors are case-sensitive and stay valid until their line is edited.";
+  "[hashline auto-read-all] Every non-ignored project file is attached below as `=== path ===` then `anchor│content` rows with live anchors.\nEdit directly from the attachment with replace and insert; do not call read_with_anchors for files in [files complete: ...].\nFiles listed as omitted or not attached can be read normally.\nAnchors are case-sensitive and stay valid until their line is edited.";
 
 const IMAGE_EXTENSIONS = new Set([
   ".avif",
@@ -398,7 +398,7 @@ function buildFooter(attached: number, discovery: AutoReadAllDiscovery, omitted:
   if (discovery.skippedByName > 0) notes.push(`${discovery.skippedByName} file(s) skipped by vendor/name/pattern rules`);
   const listed = omitted.slice(0, MAX_REPORTED_OMISSIONS).join(", ");
   const more = omitted.length > MAX_REPORTED_OMISSIONS ? `, ... (+${omitted.length - MAX_REPORTED_OMISSIONS} more)` : "";
-  const omissionNote = omitted.length > 0 ? ` Not attached: ${listed}${more}. Use read for those.` : "";
+  const omissionNote = omitted.length > 0 ? ` Not attached: ${listed}${more}. Use read_with_anchors for those.` : "";
   const summary = notes.length > 0 ? notes.join("; ") + "." : "all discovered files attached.";
   return `[hashline auto-read-all: ${attached} file(s) attached from ${discovery.source}; ${summary}${omissionNote}]`;
 }

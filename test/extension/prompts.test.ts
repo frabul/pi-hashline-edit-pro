@@ -131,7 +131,7 @@ describe("read tool guidelines", () => {
   it("always includes the re-read note for fresh anchors after edits", () => {
     const { pi, getTool } = makeFakePiRegistry();
     regRead(pi);
-    const tool = getTool("read");
+    const tool = getTool("read_with_anchors");
     const guidelines = tool.promptGuidelines as string[];
     expect(guidelines.some((g) => g.includes("call again after an edit"))).toBe(true);
   });
@@ -139,8 +139,8 @@ describe("read tool guidelines", () => {
   it("puts the enabled edit-tool preference line first", () => {
     const { pi, getTool } = makeFakePiRegistry();
     regRead(pi);
-    const guidelines = getTool("read").promptGuidelines as string[];
-    expect(guidelines[0]).toBe("Prefer the hashline tools for anything that touches files: `read`, `replace`, `replace_within`, `insert`, `copy`, `move`, or `undo_last_change`.");
+    const guidelines = getTool("read_with_anchors").promptGuidelines as string[];
+    expect(guidelines[0]).toBe("Prefer the hashline tools for anything that touches files: `read_with_anchors`, `replace`, `replace_within`, `insert`, `copy`, `move`, or `undo_last_change`.");
   });
 });
 
@@ -187,7 +187,7 @@ describe("edit prompt flag variants", () => {
 
   it("withReplacePrompts lists only the enabled edit tools in its preference guideline", () => {
     const all = withReplacePrompts(replaceBase, DEFAULT_EDIT_FLAGS);
-    expect(all.guidelines[0]).toBe("Prefer the hashline tools for anything that touches files: `read`, `replace`, `replace_within`, `insert`, `copy`, `move`, or `undo_last_change`.");
+    expect(all.guidelines[0]).toBe("Prefer the hashline tools for anything that touches files: `read_with_anchors`, `replace`, `replace_within`, `insert`, `copy`, `move`, or `undo_last_change`.");
     const noWithin = withReplacePrompts(replaceBase, { ...DEFAULT_EDIT_FLAGS, replaceWithinEnabled: false });
     expect(noWithin.guidelines[0]).not.toContain("replace_within");
     const noTransfer = withReplacePrompts(replaceBase, { ...DEFAULT_EDIT_FLAGS, copyMoveEnabled: false });
@@ -198,9 +198,9 @@ describe("edit prompt flag variants", () => {
 
   it("withReplacePrompts drops the diff-follow hint and example when auto-read is off", () => {
     const on = withReplacePrompts(replaceBase, DEFAULT_EDIT_FLAGS);
-    expect(on.description).toContain("Example: read served");
+    expect(on.description).toContain("Example: `read_with_anchors` served");
     const result = withReplacePrompts(replaceBase, { ...DEFAULT_EDIT_FLAGS, autoRead: false });
-    expect(result.description).not.toContain("Example: read served");
+    expect(result.description).not.toContain("Example: `read_with_anchors` served");
     expect(result.description).not.toContain("Anchor follow-up edits on the `+anchor│`");
     expect(result.guidelines.some((g) => g.includes("post-edit diff"))).toBe(false);
   });
@@ -284,7 +284,7 @@ describe("edit prompt flag variants", () => {
 
   it("withReadPrompts lists only the enabled edit tools in its first guideline", () => {
     const all = withReadPrompts(readBase, DEFAULT_EDIT_FLAGS);
-    expect(all.guidelines[0]).toBe("Prefer the hashline tools for anything that touches files: `read`, `replace`, `replace_within`, `insert`, `copy`, `move`, or `undo_last_change`.");
+    expect(all.guidelines[0]).toBe("Prefer the hashline tools for anything that touches files: `read_with_anchors`, `replace`, `replace_within`, `insert`, `copy`, `move`, or `undo_last_change`.");
     const noWithin = withReadPrompts(readBase, { ...DEFAULT_EDIT_FLAGS, replaceWithinEnabled: false });
     expect(noWithin.guidelines[0]).not.toContain("replace_within");
     const noTransfer = withReadPrompts(readBase, { ...DEFAULT_EDIT_FLAGS, copyMoveEnabled: false });
@@ -303,13 +303,13 @@ describe("edit prompt flag variants", () => {
 
   it("withReadPrompts keeps the auto-read-all guideline and drops the re-read note when auto-read-all is on", () => {
     const result = withReadPrompts(readBase, { ...DEFAULT_EDIT_FLAGS, autoReadAllActive: true });
-    expect(result.guidelines.some((g) => g === "`read`: `E_AUTO_READ_ALL` on an attached file means its content is still exactly as it was when attached at the start of this session.")).toBe(true);
+    expect(result.guidelines.some((g) => g === "`read_with_anchors`: `E_AUTO_READ_ALL` on an attached file means its content is still exactly as it was when attached at the start of this session.")).toBe(true);
     expect(result.guidelines.some((g) => g.includes("call again after an edit"))).toBe(false);
   });
 
   it("withReadPrompts rewrites the re-read note when auto-read is off", () => {
     const result = withReadPrompts(readBase, { ...DEFAULT_EDIT_FLAGS, autoRead: false });
-    expect(result.guidelines.some((g) => g === "`read`: call again after an edit when you need anchors you lack.")).toBe(true);
+    expect(result.guidelines.some((g) => g === "`read_with_anchors`: call again after an edit when you need anchors you lack.")).toBe(true);
   });
 
   it("withTransferPrompts keeps the anchor-only contract by default", () => {

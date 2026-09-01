@@ -563,8 +563,8 @@ describe("auto-read after copy and move", () => {
       await writeFile(join(dir, "src.ts"), "alpha\nbeta\ngamma\n", "utf-8");
       await writeFile(join(dir, "dst.ts"), "one\ntwo\n", "utf-8");
       const { handlers, getTool, ctx } = setupIntegrationTest(dir);
-      const srcText = getText(await getTool("read").execute("r1", { path: "src.ts" }, undefined, undefined, ctx));
-      const dstText = getText(await getTool("read").execute("r2", { path: "dst.ts" }, undefined, undefined, ctx));
+      const srcText = getText(await getTool("read_with_anchors").execute("r1", { path: "src.ts" }, undefined, undefined, ctx));
+      const dstText = getText(await getTool("read_with_anchors").execute("r2", { path: "dst.ts" }, undefined, undefined, ctx));
       const beta = anchorFor(srcText, "beta");
       const two = anchorFor(dstText, "two");
       const moved = await getTool("move").execute("m1", { source_from: beta, source_to: beta, insert_after: two }, undefined, undefined, ctx);

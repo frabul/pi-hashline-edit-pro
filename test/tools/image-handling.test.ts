@@ -17,7 +17,7 @@ describe("read tool image delegation", () => {
 
 			const { pi, getTool } = makeFakePiRegistry();
 			register(pi);
-			const readTool = getTool("read");
+			const readTool = getTool("read_with_anchors");
 
 			const result = await readTool.execute(
 				"r1",
@@ -41,7 +41,7 @@ describe("read tool image delegation", () => {
 
 			const { pi, getTool } = makeFakePiRegistry();
 			register(pi);
-			const readTool = getTool("read");
+			const readTool = getTool("read_with_anchors");
 
 			const result = await readTool.execute(
 				"r1",

@@ -219,7 +219,7 @@ function createRowEmitter(
     const full = fmtDiffLine(prefix, line, hash);
     const rowBytes = Buffer.byteLength(full, "utf-8");
     if (rowBytes > maxLineBytes) {
-      const marker = `[Row is ${formatSize(rowBytes)}, exceeds ${formatSize(maxLineBytes)}; content not shown. Use read to see the full line.]`;
+      const marker = `[Row is ${formatSize(rowBytes)}, exceeds ${formatSize(maxLineBytes)}; content not shown. Use read_with_anchors to see the full line.]`;
       emitPlain(fmtDiffLine(prefix, marker, hash), num);
       return;
     }
@@ -401,7 +401,7 @@ export function genDiff(
     const pushGuardedRow = (prefix: " " | "+" | "-", line: string, hash: string | undefined, num?: number): boolean => {
       const full = fmtDiffLine(prefix, line, hash);
       if (Buffer.byteLength(full, "utf-8") > maxLineBytes) {
-        const marker = `[Row is ${formatSize(Buffer.byteLength(full, "utf-8"))}, exceeds ${formatSize(maxLineBytes)}; content not shown. Use read to see the full line.]`;
+        const marker = `[Row is ${formatSize(Buffer.byteLength(full, "utf-8"))}, exceeds ${formatSize(maxLineBytes)}; content not shown. Use read_with_anchors to see the full line.]`;
         return pushGuarded(fmtDiffLine(prefix, marker, hash), num);
       }
       return pushGuarded(full, num);
@@ -553,7 +553,7 @@ export function genDiff(
   if (em.truncated) {
     output.push(" ...");
     lineNumbers.push(undefined);
-    output.push(`[diff truncated at ${formatSize(maxBytes)}; use read to see the rest.]`);
+    output.push(`[diff truncated at ${formatSize(maxBytes)}; use read_with_anchors to see the rest.]`);
     lineNumbers.push(undefined);
   }
 
@@ -584,7 +584,7 @@ export function genPatch(
     if (lineBytes > maxLineBytes) {
       truncated = true;
       const prefix = /^[ +-]/.test(line) ? line[0]! : "";
-      const marker = `${prefix}[Patch line is ${formatSize(lineBytes)}, exceeds ${formatSize(maxLineBytes)}; content not shown. Use read to see the full line.]`;
+      const marker = `${prefix}[Patch line is ${formatSize(lineBytes)}, exceeds ${formatSize(maxLineBytes)}; content not shown. Use read_with_anchors to see the full line.]`;
       const markerBytes = Buffer.byteLength(marker, "utf-8") + 1;
       if (outBytes + markerBytes > maxBytes) {
         break;
@@ -602,7 +602,7 @@ export function genPatch(
   }
   if (truncated) {
     out.push("...");
-    out.push(`[patch truncated at ${formatSize(maxBytes)}; the patch cannot be applied as-is. Use read to see the full file.]`);
+    out.push(`[patch truncated at ${formatSize(maxBytes)}; the patch cannot be applied as-is. Use read_with_anchors to see the full file.]`);
   }
   return { patch: out.join("\n"), truncated };
 }

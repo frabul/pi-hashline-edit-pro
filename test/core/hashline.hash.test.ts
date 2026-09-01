@@ -94,7 +94,7 @@ describe("perfect hashing", () => {
 		}
 		expect(caught).toBeDefined();
 		expect(caught!.message).toMatch(/E_STALE_ANCHOR/);
-		expect(caught!.message).toContain("Call read()");
+		expect(caught!.message).toContain("Call read_with_anchors()");
 	});
 
 	it("all hashes are unique for any file shape", async () => {

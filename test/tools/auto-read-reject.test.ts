@@ -36,7 +36,7 @@ describe("auto-read-all read rejection", () => {
       await handlers.get("session_start")!({}, ctx);
       const injected = await handlers.get("before_agent_start")!({}, ctx) as { message?: { content?: string } } | undefined;
       expect(injected?.message?.content).toContain("=== sample.txt ===");
-      await expect(getTool("read").execute("r1", { path: "sample.txt" }, undefined, undefined, ctx)).rejects.toThrow("[E_AUTO_READ_ALL]");
+      await expect(getTool("read_with_anchors").execute("r1", { path: "sample.txt" }, undefined, undefined, ctx)).rejects.toThrow("[E_AUTO_READ_ALL]");
     } finally {
       await rmRetry(cwd);
     }
@@ -52,7 +52,7 @@ describe("auto-read-all read rejection", () => {
       await handlers.get("session_start")!({}, ctx);
       await handlers.get("before_agent_start")!({}, ctx);
       await writeFile(join(cwd, "sample.txt"), "alpha\nbeta\ngamma\n");
-      const result = await getTool("read").execute("r1", { path: "sample.txt" }, undefined, undefined, ctx);
+      const result = await getTool("read_with_anchors").execute("r1", { path: "sample.txt" }, undefined, undefined, ctx);
       expect(result.content[0].text).toContain("│gamma");
     } finally {
       await rmRetry(cwd);
@@ -65,7 +65,7 @@ describe("auto-read-all read rejection", () => {
       await writeFile(join(cwd, "sample.txt"), "alpha\nbeta\n");
       const { getTool } = setupIntegrationTest(cwd);
       const ctx = sessionContext(cwd) as never;
-      const result = await getTool("read").execute("r1", { path: "sample.txt" }, undefined, undefined, ctx);
+      const result = await getTool("read_with_anchors").execute("r1", { path: "sample.txt" }, undefined, undefined, ctx);
       expect(result.content[0].text).toContain("│alpha");
     } finally {
       await rmRetry(cwd);
@@ -82,12 +82,12 @@ describe("auto-read-all read rejection", () => {
       await handlers.get("session_start")!({}, sessionA);
       const injected = await handlers.get("before_agent_start")!({}, sessionA) as { message?: { content?: string } } | undefined;
       expect(injected?.message?.content).toContain("=== sample.txt ===");
-      await expect(getTool("read").execute("rA", { path: "sample.txt" }, undefined, undefined, sessionA)).rejects.toThrow("[E_AUTO_READ_ALL]");
+      await expect(getTool("read_with_anchors").execute("rA", { path: "sample.txt" }, undefined, undefined, sessionA)).rejects.toThrow("[E_AUTO_READ_ALL]");
 
       const sessionB = sessionContext(cwd, join(cwd, "session-b.jsonl")) as never;
-      const first = await getTool("read").execute("r1", { path: "sample.txt" }, undefined, undefined, sessionB);
+      const first = await getTool("read_with_anchors").execute("r1", { path: "sample.txt" }, undefined, undefined, sessionB);
       expect(first.content[0].text).toContain("│alpha");
-      const second = await getTool("read").execute("r2", { path: "sample.txt" }, undefined, undefined, sessionB);
+      const second = await getTool("read_with_anchors").execute("r2", { path: "sample.txt" }, undefined, undefined, sessionB);
       expect(second.content[0].text).toContain("│alpha");
     } finally {
       await rmRetry(cwd);

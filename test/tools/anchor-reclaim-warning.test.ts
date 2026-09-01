@@ -12,7 +12,7 @@ import {
 const FREED = "/project/old.ts";
 
 describe("anchor reclaim warnings", () => {
-  it("appends the notice to read output", async () => {
+  it("appends the notice to read_with_anchors output", async () => {
     await withTempFile("sample.txt", "alpha\nbeta\n", async ({ cwd }) => {
       const { ctx, readTool } = setupIntegrationTest(cwd);
       const spy = vi.spyOn(registry, "takeReclaimedPaths").mockReturnValueOnce([FREED]);

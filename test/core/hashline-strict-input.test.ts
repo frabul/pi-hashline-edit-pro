@@ -303,7 +303,7 @@ describe("short and long runs before the separator (issue #27)", () => {
     expect(result.warnings?.[0]).toMatch(/Stripped diff-preview marker/);
   });
 
-	it("strips a 4-char prefix pasted from read output", async () => {
+	it("strips a 4-char prefix pasted from read_with_anchors output", async () => {
 		const hashes = await lineHashes(file, home.testPath);
 		const anchor = hashes[0]!;
 		const result = applyTool(
