@@ -55,39 +55,33 @@ describe("prompts/read.md (model-facing contract)", () => {
 });
 
 describe("prompt guidelines", () => {
-  it("replace-guidelines.md loads without template variables", () => {
-    const content = readFileSync(
-      new URL("../../prompts/replace-guidelines.md", import.meta.url),
-      "utf-8",
-    );
-    expect(content).toContain("remove_from");
-    expect(content).toContain("remove_to");
-    expect(content).toContain("replacement_lines");
-    expect(content).not.toContain("hash_bounds");
-    expect(content).not.toContain("new_content");
-    expect(content).not.toContain("{{");
+  const guidelinesFiles: Array<[string, string]> = [
+    ["read_with_anchors", "read-guidelines.md"],
+    ["anchor_grep", "grep-guidelines.md"],
+    ["replace", "replace-guidelines.md"],
+    ["insert", "insert-guidelines.md"],
+    ["undo_last_change", "undo-last-change-guidelines.md"],
+  ];
+
+  it("every per-tool guidelines file loads without template variables", () => {
+    for (const [, file] of guidelinesFiles) {
+      const content = readFileSync(
+        new URL(`../../prompts/${file}`, import.meta.url),
+        "utf-8",
+      );
+      expect(content).toContain("- ");
+      expect(content).not.toContain("{{");
+      expect(content).not.toContain("hash_bounds");
+      expect(content).not.toContain("new_content");
+    }
   });
 
-  it("loadGuide returns an array of guidelines", () => {
-    const guidelines = loadGuide("../prompts/replace-guidelines.md");
-    expect(Array.isArray(guidelines)).toBe(true);
-    expect(guidelines.length).toBeGreaterThan(0);
-  });
-
-  it("read-guidelines.md keeps the re-read note inline", () => {
-    const content = readFileSync(
-      new URL("../../prompts/read-guidelines.md", import.meta.url),
-      "utf-8",
-    );
-    expect(content).toContain("call again after an edit");
-    expect(content).not.toContain("{{AUTO_READ_NOTE}}");
-  });
-  it("undo-last-change-guidelines.md loads without template variables", () => {
-    const content = readFileSync(
-      new URL("../../prompts/undo-last-change-guidelines.md", import.meta.url),
-      "utf-8",
-    );
-    expect(content).not.toContain("{{");
+  it("each tool's guidelines name their owning tool", () => {
+    for (const [tool, file] of guidelinesFiles) {
+      const guidelines = loadGuide(`../prompts/${file}`);
+      expect(guidelines.length).toBeGreaterThan(0);
+      expect(guidelines.every((g) => g.includes("`" + tool + "`"))).toBe(true);
+    }
   });
 });
 
@@ -98,7 +92,16 @@ describe("read tool guidelines", () => {
     const tool = getTool("read_with_anchors");
     const guidelines = tool.promptGuidelines as string[];
     expect(guidelines.some((g) => g.includes("call again after an edit"))).toBe(true);
-    expect(guidelines.some((g) => g.includes("call before `replace`"))).toBe(true);
+    expect(guidelines.some((g) => g.includes("before `replace`"))).toBe(true);
+  });
+
+  it("keeps read_with_anchors guidelines scoped to read_with_anchors (regression: shared suite file leaked inactive tools)", () => {
+    const { pi, getTool } = makeFakePiRegistry();
+    regRead(pi);
+    const tool = getTool("read_with_anchors");
+    const guidelines = tool.promptGuidelines as string[];
+    expect(guidelines.some((g) => g.includes("run `anchor_grep` for that exact snippet"))).toBe(false);
+    expect(guidelines.some((g) => g.includes("`undo_last_change`: a successful"))).toBe(false);
   });
 });
 

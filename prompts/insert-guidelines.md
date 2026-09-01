@@ -1,3 +1,2 @@
-- `insert`: `anchor` is bare `aB3` from `aB3│content` (never the content), direction `after` adds below, `before` adds above. Do not put the anchor line in `lines`; `[""]` is a blank line.
-- `insert`: `lines` is bare content, one element per line, kept literally even if it duplicates neighbors — nothing is removed.
-- `insert`: the anchor must have been shown by `read_with_anchors`, a post-edit diff (`+anchor│`/` anchor│`), or `anchor_grep`. For an empty file, `read_with_anchors` shows one `anchor│` empty row — insert `after` it.
+- `replace`/`insert`: the post-edit diff `+anchor│`/` anchor│` rows are already fresh anchors for the changed range, so you do not need a new `read_with_anchors` for those lines.
+- `insert`: for an empty file, `read_with_anchors` shows one `anchor│` empty row — insert `after` it.

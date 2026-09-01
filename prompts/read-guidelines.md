@@ -1,2 +1,3 @@
-- `read_with_anchors`: call before `replace` when you need fresh anchors for a file.
-- `read_with_anchors`: call again after an edit when you need anchors you do not have — post-edit diff `+anchor│`/` anchor│` rows and `anchor_grep` hits are already fresh anchors for the changed range, so no new `read_with_anchors` needed for those lines.
+- `read_with_anchors`: use stock `read` if you just want to read a file and don't need anchors for edits.
+- `read_with_anchors`: call before `replace` or `insert` when you need fresh anchors for a file.
+- `read_with_anchors`: call again after an edit when you need anchors you do not have
