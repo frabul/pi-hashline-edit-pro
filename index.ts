@@ -6,6 +6,7 @@ import { regInsert } from "./src/insert";
 import { regGrep } from "./src/grep";
 import { regUndo, clearUndo } from "./src/replace-undo";
 import { regRead, fmtReadPreview } from "./src/read";
+import { regEditStub } from "./src/edit-stub";
 import type { RMetrics } from "./src/replace-response";
 import { extractWarnings } from "./src/replace-render";
 import { MAX_HASH_LINES } from "./src/hashline";
@@ -26,6 +27,7 @@ import { splitLines } from "./src/utils";
 
 export default function (pi: ExtensionAPI): void {
   regRead(pi);
+  regEditStub(pi);
 
   regReplace(pi);
   regInsert(pi);

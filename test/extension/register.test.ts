@@ -21,7 +21,7 @@ describe("extension registration", () => {
 
     register(pi);
 
-    expect(toolNames.sort()).toEqual(["anchor_grep", "insert", "read_with_anchors", "replace", "undo_last_change"]);
+    expect(toolNames.sort()).toEqual(["anchor_grep", "edit", "insert", "read_with_anchors", "replace", "undo_last_change"]);
 
     expect(commandNames.sort()).toEqual(["toggle-anchor-grep", "toggle-auto-read"]);
     expect(eventNames.sort()).toEqual(["session_start", "tool_call", "tool_result"]);
